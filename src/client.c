@@ -75,6 +75,8 @@ int main (int argc, char *argv [])
   
   sub_obj->group_hash = g_strdup_printf("%s", group_hash);
   sub_obj->user_hash =  g_strdup_printf("%s", user_hash);
+  pub_obj->group_hash = g_strdup_printf("%s", group_hash);
+  pub_obj->user_hash =  g_strdup_printf("%s", user_hash);
 
   g_free(user_hash);
   g_free(group_hash);

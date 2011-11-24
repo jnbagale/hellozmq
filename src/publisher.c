@@ -26,7 +26,7 @@ pubObject *publish_forwarder(pubObject *pub_obj)
   pub_obj->context = zmq_init (1);
   pub_obj->publisher = zmq_socket (pub_obj->context, ZMQ_PUB);
   zmq_connect (pub_obj->publisher, "tcp://*:5556");
-  g_print("Now sending data from port 5556\n");
+  g_print("Now sending data to forwarder from port 5556\n");
 
   return pub_obj;
 }
@@ -43,6 +43,7 @@ void send_data(pubObject *pub_obj)
     // Send message to all subscribers of group: world
     char update [50];
     sprintf (update,"%s %d %d", pub_obj->group_hash, covariance, count);
+    g_print("Sent :%s\n",update);
     s_send (pub_obj->publisher, update);
     count++;
     g_usleep(100000);

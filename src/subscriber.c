@@ -48,8 +48,8 @@ void receive_data(subObject *sub_obj)
       gchar *string = s_recv (sub_obj->subscriber);
       gint covariance;
       gint count;
-      char *group;
-      sscanf (string, "%s %d %d", group, &covariance, &count);
+      char group[40];
+      sscanf (string, "%s %d %d", &group, &covariance, &count);
       printf("%d: Covariance received %d from group %s\n", count, covariance, sub_obj->group_hash);
       g_free (string);
       g_usleep(10);
