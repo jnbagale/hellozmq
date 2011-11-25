@@ -25,7 +25,7 @@ pubObject *publish_forwarder(pubObject *pub_obj)
   /* Prepare our context and publisher */
   pub_obj->context = zmq_init (1);
   pub_obj->publisher = zmq_socket (pub_obj->context, ZMQ_PUB);
-  zmq_connect (pub_obj->publisher, "tcp://*:5556");
+  zmq_bind (pub_obj->publisher, "tcp://*:5556");
   g_print("Now sending data to forwarder from port 5556\n");
 
   return pub_obj;

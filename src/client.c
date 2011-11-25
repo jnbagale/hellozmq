@@ -46,7 +46,7 @@ int main (int argc, char *argv [])
   };
  
 
-  context = g_option_context_new ("- hello zero mq");
+  context = g_option_context_new ("- hello zeromq");
   g_option_context_add_main_entries (context, entries, PACKAGE_NAME);
   
   if (!g_option_context_parse (context, &argc, &argv, &error)) {

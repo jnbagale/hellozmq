@@ -40,7 +40,7 @@ void start_forwarder(serverObject *server_obj)
   server_obj->frontend  = zmq_socket (server_obj->context, ZMQ_SUB);
   server_obj->backend = zmq_socket (server_obj->context, ZMQ_PUB);
 
-  zmq_bind (server_obj->frontend,  frontend_endpoint);
+  zmq_connect (server_obj->frontend,  frontend_endpoint);
   zmq_bind (server_obj->backend, backend_endpoint);
 
   //  Subscribe for everything
