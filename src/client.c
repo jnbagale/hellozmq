@@ -28,6 +28,7 @@ int main (int argc, char *argv [])
   gchar *group_name_fix;
   gchar *group = DEFAULT_GROUP;
   gchar *server = DEFAULT_SERVER;
+  gchar *type = DEFAULT_TYPE;
   gint port = DEFAULT_PORT;
   gboolean verbose = FALSE;
   GOptionContext *context;
@@ -41,6 +42,7 @@ int main (int argc, char *argv [])
     { "group", 'g', 0, G_OPTION_ARG_STRING, &group, "zeromq group", NULL },
     { "server", 's', 0, G_OPTION_ARG_STRING, &server, "zeromq server", NULL },
     { "port", 'p', 0, G_OPTION_ARG_INT, &port, "zeromq port", "N" },
+    { "type",'t', 0, G_OPTION_ARG_STRING, &type, "client type:pub or sub or both", NULL },
 
     { NULL }
   };
@@ -81,8 +83,6 @@ int main (int argc, char *argv [])
   g_free(user_hash);
   g_free(group_hash);
   
-  sub_obj = subscribe_forwarder(sub_obj);
-
   /* Initialise mainloop */
   mainloop = g_main_loop_new(NULL, FALSE);
 
@@ -91,14 +91,16 @@ int main (int argc, char *argv [])
     exit(EXIT_FAILURE);
   }
 
-  if( g_thread_create( (GThreadFunc) receive_data, (gpointer) sub_obj, FALSE, &error) == NULL) {
+  if( (g_strcmp0(type,"both") == 0) || (g_strcmp0(type,"sub") == 0) ) {
+    sub_obj = subscribe_forwarder(sub_obj);
+    if( g_thread_create( (GThreadFunc) receive_data, (gpointer) sub_obj, FALSE, &error) == NULL) {
       g_printerr("option parsing failed1: %s\n", error->message);
-  exit (EXIT_FAILURE);
+      exit (EXIT_FAILURE);
+    }
   }
- 
-  if(pub_obj->publish) {
+
+  if( (g_strcmp0(type,"both") == 0) || (g_strcmp0(type,"pub") == 0) ) {
     pub_obj = publish_forwarder(pub_obj);
- 
     if( g_thread_create( (GThreadFunc) send_data, (gpointer) pub_obj, FALSE, &error) == NULL ) {
       g_printerr("option parsing failed 2: %s\n", error->message);
       exit (EXIT_FAILURE);
@@ -107,5 +109,6 @@ int main (int argc, char *argv [])
 
   g_main_loop_run(mainloop);
   
+  /* We should never reach here unless something goes wrong! */
   return EXIT_FAILURE;
 }

@@ -7,6 +7,7 @@ AC_DEFINE([PROGNAME],["hellozmq"],["hello zeromq"])
 AC_DEFINE([DEFAULT_SERVER],["10.48.128.32"],["the default zeromq server"])
 AC_DEFINE([DEFAULT_PORT],[8001],["the default zeromq broker port"])
 AC_DEFINE([DEFAULT_GROUP],["world"],["the group everyone can join"])
+AC_DEFINE([DEFAULT_TYPE],["both"],["the default client type to run"])
 
 # Checks for programs.
 AC_PROG_CC
