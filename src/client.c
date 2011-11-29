@@ -61,6 +61,7 @@ int main (int argc, char *argv [])
 
   sub_obj->server =  g_strdup_printf("%s",server);
   sub_obj->port = port;
+  pub_obj->server =  g_strdup_printf("%s",server);
 
   /* Initialising thread */
   g_thread_init(NULL);
