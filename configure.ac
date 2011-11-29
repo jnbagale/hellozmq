@@ -26,7 +26,7 @@ AC_FUNC_MALLOC
 # check for glib
 PKG_CHECK_MODULES(GLIB, [glib-2.0])
 
-#check for gthread
+#check for ZeroMQ
 PKG_CHECK_MODULES(LIBZMQ, [libzmq] )
 
 #check for gthread

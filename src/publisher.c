@@ -22,12 +22,13 @@ pubObject *make_pub_object(void)
 
 pubObject *publish_forwarder(pubObject *pub_obj)
 {
+  gchar *forwarder_address =  g_strdup_printf("tcp://%s:%d",pub_obj->server, 5566);
   /* Prepare our context and publisher */
   pub_obj->context = zmq_init (1);
   pub_obj->publisher = zmq_socket (pub_obj->context, ZMQ_PUB);
-  zmq_connect (pub_obj->publisher, "tcp://10.48.128.32:5556");
-  g_print("Now sending data to forwarder from port 5556\n");
-
+  zmq_connect (pub_obj->publisher, forwarder_address);
+  g_print("Now sending data to forwarder %s\n",forwarder_address);
+  g_free(forwarder_address);
   return pub_obj;
 }
 
