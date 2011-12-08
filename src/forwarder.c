@@ -44,8 +44,9 @@ void start_forwarder(serverObject *server_obj)
   zmq_bind (server_obj->backend, backend_endpoint);
 
   //  Subscribe for everything
-  zmq_setsockopt (server_obj->frontend, ZMQ_SUBSCRIBE, "", 0);
-  g_print("Forwarder device is started at %s\n",backend_endpoint);
+  zmq_setsockopt (server_obj->frontend, ZMQ_SUBSCRIBE, "", 0); 
+  g_print("\nForwarder device is receiving at %s\n",frontend_endpoint);
+  g_print("\nForwarder device is sending from %s\n",backend_endpoint);
   //  Start the forwarder device
   zmq_device (ZMQ_FORWARDER, server_obj->frontend, server_obj->backend);
 }
