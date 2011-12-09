@@ -22,7 +22,7 @@ pubObject *make_pub_object(void)
 
 pubObject *publish_forwarder(pubObject *pub_obj)
 {
-  gchar *forwarder_address =  g_strdup_printf("tcp://%s:%d",pub_obj->server, 5556);
+  gchar *forwarder_address =  g_strdup_printf("tcp://%s:%d",pub_obj->host, 5556);
   /* Prepare our context and publisher */
   pub_obj->context = zmq_init (1);
   pub_obj->publisher = zmq_socket (pub_obj->context, ZMQ_PUB);
@@ -55,5 +55,6 @@ void free_pub_object(pubObject *pub_obj)
 {
   zmq_close (pub_obj->publisher);
   zmq_term (pub_obj->context);
+  g_free(pub_obj->host);
   g_free(pub_obj);  
 }

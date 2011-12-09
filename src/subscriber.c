@@ -24,7 +24,7 @@ subObject *subscribe_forwarder(subObject *sub_obj)
 {
   sub_obj->context = zmq_init (1);
 
-  gchar *forwarder_address =  g_strdup_printf("tcp://%s:%d",sub_obj->server, sub_obj->port);
+  gchar *forwarder_address =  g_strdup_printf("tcp://%s:%d",sub_obj->host, sub_obj->port);
 
    /* Socket to subscribe to forwarder */
   sub_obj->subscriber = zmq_socket (sub_obj->context, ZMQ_SUB);
@@ -60,5 +60,6 @@ void free_sub_object(subObject *sub_obj)
 {
   zmq_close (sub_obj->subscriber);
   zmq_term (sub_obj->context);
+  g_free(sub_obj->host);
   g_free(sub_obj);  
 }

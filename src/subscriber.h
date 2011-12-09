@@ -7,7 +7,7 @@ typedef struct {
   void *subscriber;
   gchar *group_hash;
   gchar *user_hash;
-  gchar *server;
+  gchar *host;
   gint port;
   
 } subObject;

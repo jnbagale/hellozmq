@@ -27,7 +27,7 @@ int main (int argc, char *argv [])
   gchar *group_hash;
   gchar *group_name_fix;
   gchar *group = DEFAULT_GROUP;
-  gchar *server = DEFAULT_SERVER;
+  gchar *host = DEFAULT_HOST;
   gchar *type = DEFAULT_TYPE;
   gint port = DEFAULT_PORT;
   gboolean verbose = FALSE;
@@ -40,7 +40,7 @@ int main (int argc, char *argv [])
   {
     { "verbose", 'v', 0, G_OPTION_ARG_NONE, &verbose, "Verbose output", NULL },
     { "group", 'g', 0, G_OPTION_ARG_STRING, &group, "zeromq group", NULL },
-    { "server", 's', 0, G_OPTION_ARG_STRING, &server, "zeromq server", NULL },
+    { "host", 'h', 0, G_OPTION_ARG_STRING, &host, "zeromq host", NULL },
     { "port", 'p', 0, G_OPTION_ARG_INT, &port, "zeromq port", "N" },
     { "type",'t', 0, G_OPTION_ARG_STRING, &type, "client type:pub or sub or both", NULL },
 
@@ -59,9 +59,9 @@ int main (int argc, char *argv [])
   sub_obj = make_sub_object();
   pub_obj = make_pub_object();
 
-  sub_obj->server =  g_strdup_printf("%s",server);
+  sub_obj->host =  g_strdup_printf("%s",host);
   sub_obj->port = port;
-  pub_obj->server =  g_strdup_printf("%s",server);
+  pub_obj->host =  g_strdup_printf("%s",host);
 
   /* Initialising thread */
   g_thread_init(NULL);

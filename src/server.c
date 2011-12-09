@@ -27,7 +27,7 @@ int main (int argc, char *argv[])
   gchar *group_hash;
   gchar *group_name_fix;
   gchar *group = DEFAULT_GROUP;
-  gchar *server = DEFAULT_SERVER;
+  gchar *host = DEFAULT_HOST;
   gint port = DEFAULT_PORT;
   gboolean verbose = FALSE;
   GOptionContext *context;
@@ -36,7 +36,7 @@ int main (int argc, char *argv[])
   {
     { "verbose", 'v', 0, G_OPTION_ARG_NONE, &verbose, "Verbose output", NULL },
     { "group", 'g', 0, G_OPTION_ARG_STRING, &group, "zeromq group", NULL },
-    { "server", 's', 0, G_OPTION_ARG_STRING, &server, "zeromq server", NULL },
+    { "host", 'h', 0, G_OPTION_ARG_STRING, &host, "zeromq host", NULL },
     { "port", 'p', 0, G_OPTION_ARG_INT, &port, "zeromq port", "N" },
 
     { NULL }
@@ -53,7 +53,7 @@ int main (int argc, char *argv[])
 
   /* creating a structure and assiging server and port addresses  */
   server_obj = make_server_object();
-  server_obj->server =  g_strdup_printf("%s",server);
+  server_obj->host =  g_strdup_printf("%s",host);
   server_obj->port = port;
   
   /* Initialising thread */

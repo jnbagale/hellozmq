@@ -8,7 +8,7 @@ typedef struct {
   gchar *group_hash;
   gchar *user_hash;
   gboolean publish;
-  gchar *server;
+  gchar *host;
   gint port;
   
 } pubObject;

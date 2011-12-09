@@ -10,7 +10,7 @@ typedef struct {
   void *backend;
   gchar *group_hash;
   gchar *user_hash;
-  gchar *server;
+  gchar *host;
   gint port;
 } serverObject;
 

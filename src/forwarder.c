@@ -33,7 +33,7 @@ void start_forwarder(serverObject *server_obj)
   gchar *frontend_endpoint = "tcp://*:5556";
   
   //  This is our public IP address and port
-  gchar *backend_endpoint =  g_strdup_printf("tcp://%s:%d",server_obj->server, server_obj->port);
+  gchar *backend_endpoint =  g_strdup_printf("tcp://%s:%d",server_obj->host, server_obj->port);
 
   //  Prepare context and sockets
   server_obj->context  = zmq_init (1);
@@ -56,6 +56,6 @@ void free_server_object(serverObject *server_obj)
   zmq_term (server_obj->context);
   g_free(server_obj->group_hash);
   g_free(server_obj->user_hash);
-  g_free(server_obj->server);
+  g_free(server_obj->host);
   g_free(server_obj);  
 }
