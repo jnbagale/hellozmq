@@ -43,7 +43,7 @@ void send_data(pubObject *pub_obj)
 
     // Send message to all subscribers of group: world
     char update [50];
-    sprintf (update,"%s %d %d", pub_obj->group_hash, covariance, count);
+    sprintf (update,"%s %d %d", pub_obj->group_hash, count, covariance);
     g_print("Sent :%s\n",update);
     s_send (pub_obj->publisher, update);
     count++;

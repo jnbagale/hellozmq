@@ -25,7 +25,6 @@ int main (int argc, char *argv [])
   gchar id[36];
   gchar *user_hash;
   gchar *group_hash;
-  gchar *group_name_fix;
   gchar *group = DEFAULT_GROUP;
   gchar *host = DEFAULT_HOST;
   gchar *type = DEFAULT_TYPE;
@@ -73,9 +72,7 @@ int main (int argc, char *argv [])
 
   /* generate a hash of the group name */
   group_hash = g_compute_checksum_for_string(G_CHECKSUM_MD5, group, strlen(group));
-  /* 32 len strings don't seem to work so this is a fix */
-  group_name_fix = g_strndup(group_hash, 31);
-  
+   
   sub_obj->group_hash = g_strdup_printf("%s", group_hash);
   sub_obj->user_hash =  g_strdup_printf("%s", user_hash);
   pub_obj->group_hash = g_strdup_printf("%s", group_hash);
