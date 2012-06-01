@@ -12,8 +12,8 @@ typedef struct {
   gchar *user_hash;
   gchar *host;
   gint port;
-} serverObject;
+} brokerObject;
 
-serverObject *make_server_object(void);
-void free_server_object(serverObject *server_obj);
-void start_forwarder(serverObject *server_obj);
+brokerObject *make_broker_object(void);
+void free_broker_object(brokerObject *broker_obj);
+void start_forwarder(brokerObject *broker_obj);

@@ -30,7 +30,7 @@ int main (int argc, char *argv[])
   gint port = DEFAULT_PORT;
   gboolean verbose = FALSE;
   GOptionContext *context;
-  serverObject *server_obj = NULL;
+  brokerObject *broker_obj = NULL;
   GOptionEntry entries[] = 
   {
     { "verbose", 'v', 0, G_OPTION_ARG_NONE, &verbose, "Verbose output", NULL },
@@ -50,10 +50,10 @@ int main (int argc, char *argv[])
     exit (EXIT_FAILURE);
   }
 
-  /* creating a structure and assiging server and port addresses  */
-  server_obj = make_server_object();
-  server_obj->host =  g_strdup_printf("%s",host);
-  server_obj->port = port;
+  /* creating a structure and assiging broker and port addresses  */
+  broker_obj = make_broker_object();
+  broker_obj->host =  g_strdup_printf("%s",host);
+  broker_obj->port = port;
   
   /* Initialising thread */
   g_thread_init(NULL);
@@ -66,8 +66,8 @@ int main (int argc, char *argv[])
   group_hash = g_compute_checksum_for_string(G_CHECKSUM_MD5, group, strlen(group));
 
   /* Store user and group hash to be sent to network */
-  server_obj->user_hash = g_strdup_printf("%s",user_hash);
-  server_obj->group_hash = g_strdup_printf("%s",group_hash);
+  broker_obj->user_hash = g_strdup_printf("%s",user_hash);
+  broker_obj->group_hash = g_strdup_printf("%s",group_hash);
   /* Clean up memory*/
   g_free(user_hash);
   g_free(group_hash);
@@ -80,7 +80,7 @@ int main (int argc, char *argv[])
   }
 
   /* Run a thread to start the forwarder */
-  if( g_thread_create( (GThreadFunc) start_forwarder, (gpointer) server_obj, FALSE, &error) == NULL ) {
+  if( g_thread_create( (GThreadFunc) start_forwarder, (gpointer) broker_obj, FALSE, &error) == NULL ) {
        g_printerr("option parsing failed 2: %s\n", error->message);
    exit (EXIT_FAILURE);
   }
