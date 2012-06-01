@@ -4,7 +4,7 @@ AC_CONFIG_SRCDIR([src/])
 AM_CONFIG_HEADER([src/config.h])
 
 AC_DEFINE([PROGNAME],["hellozmq"],["hello zeromq"])
-AC_DEFINE([DEFAULT_HOST],["10.48.128.32"],["the default zeromq server"])
+AC_DEFINE([DEFAULT_HOST],["127.0.0.1"],["the default zeromq server"])
 AC_DEFINE([DEFAULT_PORT],[8001],["the default zeromq broker port"])
 AC_DEFINE([DEFAULT_GROUP],["world"],["the group everyone can join"])
 AC_DEFINE([DEFAULT_TYPE],["both"],["the default client type to run"])
