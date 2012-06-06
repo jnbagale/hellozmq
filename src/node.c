@@ -28,7 +28,8 @@ int main (int argc, char *argv [])
   gchar *group = DEFAULT_GROUP;
   gchar *host = DEFAULT_HOST;
   gchar *type = DEFAULT_TYPE;
-  gint port = DEFAULT_PORT;
+  gint sub_port = DEFAULT_SUB_PORT;
+  gint pub_port = DEFAULT_PUB_PORT;
   gboolean verbose = FALSE;
   GOptionContext *context;
   subObject *sub_obj = NULL;  
@@ -40,7 +41,8 @@ int main (int argc, char *argv [])
     { "verbose", 'v', 0, G_OPTION_ARG_NONE, &verbose, "Verbose output", NULL },
     { "group", 'g', 0, G_OPTION_ARG_STRING, &group, "zeromq group", NULL },
     { "host", 'h', 0, G_OPTION_ARG_STRING, &host, "zeromq host", NULL },
-    { "port", 'p', 0, G_OPTION_ARG_INT, &port, "zeromq port", "N" },
+    { "sub_port", 's', 0, G_OPTION_ARG_INT, &sub_port, "broker's outbound port", "N" },
+    { "pub_port", 'p', 0, G_OPTION_ARG_INT, &pub_port, "broker's inbound port", "N" },
     { "type",'t', 0, G_OPTION_ARG_STRING, &type, "client type:pub or sub or both", NULL },
 
     { NULL }
@@ -58,10 +60,11 @@ int main (int argc, char *argv [])
   sub_obj = make_sub_object();
   pub_obj = make_pub_object();
 
+  sub_obj->port = sub_port;
+  pub_obj->port = pub_port;
   sub_obj->host =  g_strdup_printf("%s",host);
-  sub_obj->port = port;
   pub_obj->host =  g_strdup_printf("%s",host);
-
+  
   /* Initialising thread */
   g_thread_init(NULL);
   

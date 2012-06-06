@@ -27,7 +27,8 @@ int main (int argc, char *argv[])
   gchar *group_hash;
   gchar *group = DEFAULT_GROUP;
   gchar *host = DEFAULT_HOST;
-  gint port = DEFAULT_PORT;
+  gint sub_port = DEFAULT_SUB_PORT;
+  gint pub_port = DEFAULT_PUB_PORT;
   gboolean verbose = FALSE;
   GOptionContext *context;
   brokerObject *broker_obj = NULL;
@@ -36,8 +37,8 @@ int main (int argc, char *argv[])
     { "verbose", 'v', 0, G_OPTION_ARG_NONE, &verbose, "Verbose output", NULL },
     { "group", 'g', 0, G_OPTION_ARG_STRING, &group, "zeromq group", NULL },
     { "host", 'h', 0, G_OPTION_ARG_STRING, &host, "zeromq host", NULL },
-    { "port", 'p', 0, G_OPTION_ARG_INT, &port, "zeromq port", "N" },
-
+    { "sub_port", 's', 0, G_OPTION_ARG_INT, &sub_port, "zeromq broker's outbound port", "N" },
+    { "pub_port", 'p', 0, G_OPTION_ARG_INT, &pub_port, "zeromq broker's inbound port", "N" },
     { NULL }
   };
  
@@ -50,28 +51,16 @@ int main (int argc, char *argv[])
     exit (EXIT_FAILURE);
   }
 
-  /* creating a structure and assiging broker and port addresses  */
-  broker_obj = make_broker_object();
-  broker_obj->host =  g_strdup_printf("%s",host);
-  broker_obj->port = port;
-  
   /* Initialising thread */
   g_thread_init(NULL);
+
+  /* creating a structure and assiging broker and port addresses  */
+  broker_obj = make_broker_object();
+  broker_obj->sub_port = sub_port;
+  broker_obj->pub_port = pub_port;
+  broker_obj->host =  g_strdup_printf("%s",host);
+  broker_obj->group =  g_strdup_printf("%s",group);
   
-  uuid_generate_random(buf);
-  uuid_unparse(buf, id);
-  /* generate a hash of a unique id */
-  user_hash = g_compute_checksum_for_string(G_CHECKSUM_MD5, id, strlen(id));
-  /* generate a hash of the group name */
-  group_hash = g_compute_checksum_for_string(G_CHECKSUM_MD5, group, strlen(group));
-
-  /* Store user and group hash to be sent to network */
-  broker_obj->user_hash = g_strdup_printf("%s",user_hash);
-  broker_obj->group_hash = g_strdup_printf("%s",group_hash);
-  /* Clean up memory*/
-  g_free(user_hash);
-  g_free(group_hash);
-
   /* Initialising mainloop */
   mainloop = g_main_loop_new(NULL, FALSE);
   if (mainloop == NULL) {
@@ -79,7 +68,7 @@ int main (int argc, char *argv[])
     exit(EXIT_FAILURE);
   }
 
-  /* Run a thread to start the forwarder */
+  /* Run a thread to start the broker */
   if( g_thread_create( (GThreadFunc) start_forwarder, (gpointer) broker_obj, FALSE, &error) == NULL ) {
        g_printerr("option parsing failed 2: %s\n", error->message);
    exit (EXIT_FAILURE);

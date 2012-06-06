@@ -1,5 +1,4 @@
 
-
 #include <glib.h>
 
 
@@ -8,10 +7,10 @@ typedef struct {
   void *context;
   void *frontend;
   void *backend;
-  gchar *group_hash;
-  gchar *user_hash;
+  gint sub_port;
+  gint pub_port;
   gchar *host;
-  gint port;
+  gchar *group;
 } brokerObject;
 
 brokerObject *make_broker_object(void);

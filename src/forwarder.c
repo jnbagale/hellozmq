@@ -33,17 +33,17 @@ brokerObject *make_broker_object(void)
 void start_forwarder(brokerObject *broker_obj)
 {
   // To subscriber to all the publishers
-  gchar *frontend_endpoint = "tcp://*:5556";
-  
+  gchar *frontend_endpoint = g_strdup_printf("tcp://*:%d",broker_obj->pub_port);
+
   //  This is our public IP address and port
-  gchar *backend_endpoint =  g_strdup_printf("tcp://%s:%d",broker_obj->host, broker_obj->port);
+  gchar *backend_endpoint =  g_strdup_printf("tcp://%s:%d",broker_obj->host, broker_obj->sub_port);
 
   //  Prepare context and sockets
   broker_obj->context  = zmq_init (1);
   broker_obj->frontend  = zmq_socket (broker_obj->context, ZMQ_SUB);
   broker_obj->backend = zmq_socket (broker_obj->context, ZMQ_PUB);
 
-  zmq_bind (broker_obj->frontend,  frontend_endpoint);
+  zmq_connect (broker_obj->frontend,  frontend_endpoint);
   zmq_bind (broker_obj->backend, backend_endpoint);
 
   //  Subscribe for everything
@@ -57,8 +57,7 @@ void start_forwarder(brokerObject *broker_obj)
 void free_broker_object(brokerObject *broker_obj)
 {
   zmq_term (broker_obj->context);
-  g_free(broker_obj->group_hash);
-  g_free(broker_obj->user_hash);
+  g_free(broker_obj->group);
   g_free(broker_obj->host);
   g_free(broker_obj);  
 }
