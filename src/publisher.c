@@ -26,7 +26,7 @@ pubObject *publish_forwarder(pubObject *pub_obj)
   /* Prepare our context and publisher */
   pub_obj->context = zmq_init (1);
   pub_obj->publisher = zmq_socket (pub_obj->context, ZMQ_PUB);
-  zmq_bind (pub_obj->publisher, forwarder_address);
+  zmq_connect (pub_obj->publisher, forwarder_address);
   g_print("Now sending data to forwarder %s\n",forwarder_address);
   g_free(forwarder_address);
   return pub_obj;
