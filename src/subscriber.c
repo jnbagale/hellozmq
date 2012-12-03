@@ -22,6 +22,7 @@ subObject *make_sub_object(void)
 
 subObject *subscribe_forwarder(subObject *sub_obj)
 {
+  uint64_t hwm = 100; 
   sub_obj->context = zmq_init (1);
 
   gchar *forwarder_address =  g_strdup_printf("tcp://%s:%d",sub_obj->host, sub_obj->port);
@@ -33,6 +34,9 @@ subObject *subscribe_forwarder(subObject *sub_obj)
   /* Subscribe to default group: world */
   gchar *filter =   g_strdup_printf("%s", sub_obj->group_hash);
   zmq_setsockopt (sub_obj->subscriber, ZMQ_SUBSCRIBE, filter  , strlen(filter));
+  /* Set high water mark to control number of messages buffered for subscribers */
+  rc = zmq_setsockopt (sub_obj->subscriber, ZMQ_HWM, &hwm, sizeof (hwm));
+
   g_print("Receiving data from forwarder %s for group %s \n",forwarder_address, filter);
 
   g_free(filter);
