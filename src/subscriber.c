@@ -35,7 +35,7 @@ subObject *subscribe_forwarder(subObject *sub_obj)
   gchar *filter =   g_strdup_printf("%s", sub_obj->group_hash);
   zmq_setsockopt (sub_obj->subscriber, ZMQ_SUBSCRIBE, filter  , strlen(filter));
   /* Set high water mark to control number of messages buffered for subscribers */
-  rc = zmq_setsockopt (sub_obj->subscriber, ZMQ_HWM, &hwm, sizeof (hwm));
+  zmq_setsockopt (sub_obj->subscriber, ZMQ_HWM, &hwm, sizeof (hwm));
 
   g_print("Receiving data from forwarder %s for group %s \n",forwarder_address, filter);
 
