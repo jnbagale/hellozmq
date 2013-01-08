@@ -10,71 +10,85 @@
 #include <time.h>
 #include <stdlib.h>
 #include <string.h>
-#include <glib.h>
-#include <glib/gthread.h>
-#include <uuid/uuid.h>
+#include <getopt.h>
 
 #include "config.h"
 #include "forwarder.h"
 
+static int verbose_flag;
+static void print_usage(void);
+
+static void print_usage(void)
+{
+  printf("usage: broker --group <group name> --host <host name> --subport <sub port number> --pubport <pub port number> \n");
+  exit(EXIT_SUCCESS);
+}
+
 int main (int argc, char *argv[])
 {
-  GMainLoop *mainloop;
-  GError *error;
-  uuid_t buf;
-  gchar id[36];
-  gchar *user_hash;
-  gchar *group_hash;
-  gchar *group = DEFAULT_GROUP;
-  gchar *host = DEFAULT_HOST;
-  gint sub_port = DEFAULT_SUB_PORT;
-  gint pub_port = DEFAULT_PUB_PORT;
-  gboolean verbose = FALSE;
-  GOptionContext *context;
+  int c;
+  char *group = DEFAULT_GROUP;
+  char *host = DEFAULT_HOST;
+  int sub_port = DEFAULT_SUB_PORT;
+  int pub_port = DEFAULT_PUB_PORT;
   brokerObject *broker_obj = NULL;
-  GOptionEntry entries[] = 
-  {
-    { "verbose", 'v', 0, G_OPTION_ARG_NONE, &verbose, "Verbose output", NULL },
-    { "group", 'g', 0, G_OPTION_ARG_STRING, &group, "zeromq group", NULL },
-    { "host", 'h', 0, G_OPTION_ARG_STRING, &host, "zeromq host", NULL },
-    { "sub_port", 's', 0, G_OPTION_ARG_INT, &sub_port, "zeromq broker's outbound port", "N" },
-    { "pub_port", 'p', 0, G_OPTION_ARG_INT, &pub_port, "zeromq broker's inbound port", "N" },
-    { NULL }
-  };
- 
 
-  context = g_option_context_new ("- hello zeromq");
-  g_option_context_add_main_entries (context, entries, PACKAGE_NAME);
-  
-  if (!g_option_context_parse (context, &argc, &argv, &error)) {
-    g_printerr("option parsing failed: %s\n", error->message);
-    exit (EXIT_FAILURE);
+  /* creating a broker object structure and assigning broker's network address and port numbers */
+  broker_obj = make_broker_object();
+
+  while(1) {
+    static struct option long_options[] =
+      {
+        {"verbose", no_argument, &verbose_flag, 1},
+        {"help",  no_argument, 0, 'h'},
+        {"group",  required_argument, 0, 'g'},
+        {"broker",  required_argument, 0, 'b'},
+        {"subport",  required_argument, 0, 's'},
+        {"pubport",  required_argument, 0, 'p'},        
+        {0, 0, 0, 0}
+      };
+
+    int option_index = 0;
+    c = getopt_long (argc, argv, "hg:b:s:p:?", long_options, &option_index);
+    if (c == -1) break;
+    switch (c)
+      {
+      case 0:
+        if (long_options[option_index].flag != 0) break;
+        printf ("option %s", long_options[option_index].name);
+        if (optarg) printf (" with arg %s", optarg);
+        printf ("\n");
+        break;
+      case 'h':
+        print_usage();
+        break;  
+      case 'g':
+	group =  optarg;
+        break;
+      case 'b':
+        host =  optarg;
+        break;
+      case 's':
+	sub_port = atoi(optarg);
+        break;   
+      case 'p':
+	pub_port = atoi(optarg);
+        break;
+      case '?':
+        print_usage();
+        break;
+      default:
+        abort ();
+      }
   }
 
-  /* Initialising thread */
-  g_thread_init(NULL);
-
-  /* creating a structure and assiging broker and port addresses  */
-  broker_obj = make_broker_object();
+  /* assign values to various variables */
   broker_obj->sub_port = sub_port;
   broker_obj->pub_port = pub_port;
-  broker_obj->host =  g_strdup_printf("%s",host);
-  broker_obj->group =  g_strdup_printf("%s",group);
-  
-  /* Initialising mainloop */
-  mainloop = g_main_loop_new(NULL, FALSE);
-  if (mainloop == NULL) {
-    g_printerr("Couldn't create GMainLoop\n");
-    exit(EXIT_FAILURE);
-  }
+  broker_obj->host =  strdup(host);
+  broker_obj->group =  strdup(group);
 
-  /* Run a thread to start the broker */
-  if( g_thread_create( (GThreadFunc) start_forwarder, (gpointer) broker_obj, FALSE, &error) == NULL ) {
-       g_printerr("option parsing failed 2: %s\n", error->message);
-   exit (EXIT_FAILURE);
-  }
-
-  g_main_loop_run(mainloop);
+  start_forwarder(broker_obj);
 
   /* We should never reach here unless something goes wrong! */
   return EXIT_FAILURE;

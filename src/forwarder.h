@@ -1,16 +1,13 @@
 
-#include <glib.h>
-
 
 typedef struct {
-
   void *context;
   void *frontend;
   void *backend;
-  gint sub_port;
-  gint pub_port;
-  gchar *host;
-  gchar *group;
+  int sub_port;
+  int pub_port;
+  char *host;
+  char *group;
 } brokerObject;
 
 brokerObject *make_broker_object(void);

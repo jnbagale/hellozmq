@@ -7,109 +7,141 @@
 #include <time.h>
 #include <stdlib.h>
 #include <string.h>
-#include <glib.h>
-#include <glib/gthread.h>
+#include <pthread.h>
+#include <getopt.h>
 #include <uuid/uuid.h>
 
-#include "zhelpers.h"
 #include "config.h"
-#include "subscriber.h"
 #include "publisher.h"
+#include "subscriber.h"
 
+static int verbose_flag;
+static void print_usage(void);
+
+static void print_usage(void)
+{
+  printf("usage: node --group <group name> --broker <broker host name> --type <pub or sub or both> --subport <sub port number> --pubport <pub port number> \n");
+  exit(EXIT_SUCCESS);
+}
 
 int main (int argc, char *argv [])
 {
-  GMainLoop *mainloop;
-  GError *error;
+  int c;
   uuid_t buf;
-  gchar id[36];
-  gchar *user_hash;
-  gchar *group_hash;
-  gchar *group = DEFAULT_GROUP;
-  gchar *host = DEFAULT_HOST;
-  gchar *type = DEFAULT_TYPE;
-  gint sub_port = DEFAULT_SUB_PORT;
-  gint pub_port = DEFAULT_PUB_PORT;
-  gboolean verbose = FALSE;
-  GOptionContext *context;
+  char id[36];
+  char *group = DEFAULT_GROUP;
+  char *host = DEFAULT_HOST;
+  char *type = DEFAULT_TYPE;
+  int sub_port = DEFAULT_SUB_PORT;
+  int pub_port = DEFAULT_PUB_PORT;
   subObject *sub_obj = NULL;  
   pubObject *pub_obj = NULL;
+  pthread_t thread_sub;
+  pthread_t thread_pub;
 
-
-  GOptionEntry entries[] = 
-  {
-    { "verbose", 'v', 0, G_OPTION_ARG_NONE, &verbose, "Verbose output", NULL },
-    { "group", 'g', 0, G_OPTION_ARG_STRING, &group, "zeromq group", NULL },
-    { "host", 'h', 0, G_OPTION_ARG_STRING, &host, "zeromq host", NULL },
-    { "sub_port", 's', 0, G_OPTION_ARG_INT, &sub_port, "broker's outbound port", "N" },
-    { "pub_port", 'p', 0, G_OPTION_ARG_INT, &pub_port, "broker's inbound port", "N" },
-    { "type",'t', 0, G_OPTION_ARG_STRING, &type, "client type:pub or sub or both", NULL },
-
-    { NULL }
-  };
- 
-
-  context = g_option_context_new ("- hello zeromq");
-  g_option_context_add_main_entries (context, entries, PACKAGE_NAME);
-  
-  if (!g_option_context_parse (context, &argc, &argv, &error)) {
-    g_printerr("option parsing failed: %s\n", error->message);
-    exit (EXIT_FAILURE);
-  }
-
+  /* creating a subscriber and publisher object structure and assigning broker's network address and port numbers */
   sub_obj = make_sub_object();
   pub_obj = make_pub_object();
 
+  while(1) {
+    static struct option long_options[] =
+      {
+        {"verbose", no_argument, &verbose_flag, 1},
+        {"help",  no_argument, 0, 'h'},
+        {"group",  required_argument, 0, 'g'},
+        {"broker",  required_argument, 0, 'b'},
+	{"type",  required_argument, 0, 't'},
+        {"subport",  required_argument, 0, 's'},
+        {"pubport",  required_argument, 0, 'p'},        
+        {0, 0, 0, 0}
+      };
+
+    int option_index = 0;
+    c = getopt_long (argc, argv, "hg:b:t:s:p:?", long_options, &option_index);
+    if (c == -1) break;
+    switch (c)
+      {
+      case 0:
+        if (long_options[option_index].flag != 0) break;
+        printf ("option %s", long_options[option_index].name);
+        if (optarg) printf (" with arg %s", optarg);
+        printf ("\n");
+        break;
+      case 'h':
+        print_usage();
+        break;  
+      case 'g':
+	group =  optarg;
+        break;
+      case 'b':
+        host =  optarg;
+        break;
+      case 't':
+	type =  optarg;
+        break;
+      case 's':
+	sub_port = atoi(optarg);
+        break;   
+      case 'p':
+	pub_port = atoi(optarg);
+        break;
+      case '?':
+        print_usage();
+        break;
+      default:
+        abort ();
+      }
+  }
+
+  /* assigning default values */
   sub_obj->port = sub_port;
   pub_obj->port = pub_port;
-  sub_obj->host =  g_strdup_printf("%s",host);
-  pub_obj->host =  g_strdup_printf("%s",host);
-  
-  /* Initialising thread */
-  g_thread_init(NULL);
-  
+  sub_obj->host = strdup(host);
+  pub_obj->host = strdup(host);
+
+  /* generate and assign unique user id */
   uuid_generate_random(buf);
   uuid_unparse(buf, id);
-  /* generate a hash of a unique id */
-  user_hash = g_compute_checksum_for_string(G_CHECKSUM_MD5, id, strlen(id));
 
-  /* generate a hash of the group name */
-  group_hash = g_compute_checksum_for_string(G_CHECKSUM_MD5, group, strlen(group));
-   
-  sub_obj->group_hash = g_strdup_printf("%s", group_hash);
-  sub_obj->user_hash =  g_strdup_printf("%s", user_hash);
-  pub_obj->group_hash = g_strdup_printf("%s", group_hash);
-  pub_obj->user_hash =  g_strdup_printf("%s", user_hash);
-
-  g_free(user_hash);
-  g_free(group_hash);
+  sub_obj->group_id = strdup(group);
+  sub_obj->user_id =  strdup(id);
+  pub_obj->group_id = strdup(group);
+  pub_obj->user_id =  strdup(id);
   
-  /* Initialise mainloop */
-  mainloop = g_main_loop_new(NULL, FALSE);
-
-  if (mainloop == NULL) {
-    g_printerr("Couldn't create GMainLoop\n");
-    exit(EXIT_FAILURE);
-  }
-
-  if( (g_strcmp0(type,"both") == 0) || (g_strcmp0(type,"sub") == 0) ) {
+  if( (strcmp(type,"both") == 0) || (strcmp(type,"sub") == 0) ) {
     sub_obj = subscribe_forwarder(sub_obj);
-    if( g_thread_create( (GThreadFunc) receive_data, (gpointer) sub_obj, FALSE, &error) == NULL) {
-      g_printerr("option parsing failed1: %s\n", error->message);
-      exit (EXIT_FAILURE);
+
+    if (pthread_create( &thread_sub, NULL, receive_data,(void *) sub_obj)) {
+      fprintf(stderr, "Error creating searcher thread \n");
+      exit(EXIT_FAILURE);
     }
   }
 
-  if( (g_strcmp0(type,"both") == 0) || (g_strcmp0(type,"pub") == 0) ) {
+  if( (strcmp(type,"both") == 0) || (strcmp(type,"pub") == 0) ) {
     pub_obj = publish_forwarder(pub_obj);
-    if( g_thread_create( (GThreadFunc) send_data, (gpointer) pub_obj, FALSE, &error) == NULL ) {
-      g_printerr("option parsing failed 2: %s\n", error->message);
-      exit (EXIT_FAILURE);
+
+    if (pthread_create( &thread_pub, NULL, send_data,(void *) pub_obj)) {
+      fprintf(stderr, "Error creating receiver thread \n");
+      exit(EXIT_FAILURE);
     }
   }
 
-  g_main_loop_run(mainloop);
-  
+  if( (strcmp(type,"both") == 0) || (strcmp(type,"sub") == 0) ) {
+    /* Join the thread to subscribe  */
+    if(pthread_join( thread_sub, NULL)) {
+      fprintf(stderr, "Error joining subscriber thread \n");
+      exit(EXIT_FAILURE);
+    }
+  }
+
+  if( (strcmp(type,"both") == 0) || (strcmp(type,"pub") == 0) ) {
+    /* Join the thread to publish */
+    if(pthread_join( thread_pub, NULL)) {
+      fprintf(stderr, "Error joining publisher thread \n");
+      exit(EXIT_FAILURE);
+    }
+  }
+
   /* We should never reach here unless something goes wrong! */
   return EXIT_FAILURE;
 }

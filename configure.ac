@@ -23,15 +23,12 @@ AC_TYPE_SIZE_T
 # Checks for library functions.
 AC_FUNC_MALLOC
 
-
-# check for glib
-PKG_CHECK_MODULES(GLIB, [glib-2.0])
+# Check for pthreads library and header
+AC_CHECK_LIB(pthread, pthread_create, , AC_MSG_ERROR(*** pthread library not found))
+AC_CHECK_HEADERS(pthread.h,, [AC_MSG_ERROR([pthread.h required])])
 
 #check for ZeroMQ
 PKG_CHECK_MODULES(LIBZMQ, [libzmq] )
-
-#check for gthread
-PKG_CHECK_MODULES(GTHREAD, [gthread-2.0] )
 
 # check for uuid
 PKG_CHECK_MODULES(UUID, [uuid])
