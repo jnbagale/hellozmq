@@ -5,7 +5,6 @@
 /* ZeroMQ Forwarder which receives data from publishers and sends it back to subscribers */
 /* Binds PUB socket to given host address or default tcp://127.0.0.1:8100 */
 /* Binds SUB socket to given host address or default tcp://127.0.0.1:5556*/
-/* Publishes covariance data */
 
 #include <stdio.h>
 #include <stdlib.h>
