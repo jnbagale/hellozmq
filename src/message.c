@@ -33,7 +33,7 @@ int send_message(void *socket, char *message, int message_length, int send_more)
   }
 
   zmq_msg_close (&z_message);
-  printf("size of message sent: %d bytes\n",message_length);
+  // printf("size of message sent: %d bytes\n",message_length);
   return rc;
 }
 
@@ -66,6 +66,6 @@ char *receive_message(void *socket, int *message_length)
     message [size] = '\0';   
     *message_length = size;
   }
-  printf("size of message received: %d bytes\n",size);
+  //printf("size of message received: %d bytes\n",size);
   return message;
 }

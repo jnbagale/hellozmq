@@ -20,7 +20,7 @@ static void print_usage(void);
 
 static void print_usage(void)
 {
-  printf("usage: broker --group <group name> --host <host name> --subport <sub port number> --pubport <pub port number> \n");
+  printf("usage: broker --group <group name> --broker <broker host name> --subport <sub port number> --pubport <pub port number> \n");
   exit(EXIT_SUCCESS);
 }
 
