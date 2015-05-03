@@ -1,6 +1,6 @@
 // License: GPLv3
-// Copyright 2012 The Clashing Rocks
-// team@theclashingrocks.org
+// Copyright 2012 Jiva Bagale
+// jnbagale@gmail.com
 
 /* ZeroMQ Forwarder which receives data from publishers and sends it back to subscribers */
 /* Binds PUB socket to given host address or default tcp://127.0.0.1:8100 */
